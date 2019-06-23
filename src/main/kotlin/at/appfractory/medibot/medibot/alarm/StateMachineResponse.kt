@@ -10,5 +10,9 @@ enum class StateMachineResponse {
 
     DUPLICATED_ALARM_NAME,
 
-    INVALID_INTERVAL
+    INVALID_INTERVAL,
+
+    LIST_ALARMS,
+
+    HELP
 }

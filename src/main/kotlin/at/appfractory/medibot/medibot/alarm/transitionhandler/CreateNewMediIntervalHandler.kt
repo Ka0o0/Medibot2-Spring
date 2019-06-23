@@ -11,6 +11,7 @@ import at.appfractory.medibot.medibot.repository.AlarmRepository
 import org.springframework.stereotype.Service
 import java.time.DayOfWeek
 import java.time.LocalTime
+import java.time.format.DateTimeParseException
 
 /**
  * Created by Kai Takac on 2019-06-22.
@@ -36,7 +37,12 @@ class CreateNewMediIntervalHandler(val alarmRepository: AlarmRepository) : ChatS
 
         val timeAndDaySplit = intervalString.split(" ")
         if (timeAndDaySplit.isEmpty()) return invalidTimeResponse
-        val localTime = LocalTime.parse(timeAndDaySplit[0]) ?: return invalidTimeResponse
+
+        val localTime = try {
+            LocalTime.parse(timeAndDaySplit[0])
+        } catch (e: DateTimeParseException) {
+            return invalidTimeResponse
+        }
         val interval: MutableMap<DayOfWeek, LocalTime> = mutableMapOf()
 
         when (timeAndDaySplit.size) {

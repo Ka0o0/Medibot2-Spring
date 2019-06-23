@@ -2,6 +2,12 @@
 
 ## Interaction
 
+### Help
+
+```
+U: /help
+```
+
 ### Create a new alarm
 
 ```
@@ -35,6 +41,14 @@ B: Okay, I'll remind you again to take Pill daily
 U: /deletemedi
 B: Which Medi # Shows selection keyboard
 B: I'll not remind you anymore to take Pill
+```
+
+### List Alarms
+
+```
+U: /listmedis
+B: Your set alarms:
+   Pill
 ```
 
 ### Confirming taken

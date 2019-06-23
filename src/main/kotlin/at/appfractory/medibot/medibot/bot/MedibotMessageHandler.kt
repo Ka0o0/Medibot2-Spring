@@ -26,6 +26,9 @@ class MedibotMessageHandler(val stateMachine: ChatStateMachine, val alarmReposit
             "/pausemedi" -> transition = ChatTransition.PAUSE_ALARM_COMMAND
             "/deletemedi" -> transition = ChatTransition.DELETE_ALARM_COMMAND
             "/continuemedi" -> transition = ChatTransition.CONTINUE_ALARM_COMMAND
+            "/listmedis" -> transition = ChatTransition.LIST_ALARMS_COMMAND
+            "/help" -> transition = ChatTransition.HELP_COMMAND
+            "/start" -> transition = ChatTransition.HELP_COMMAND
             "taken" -> transition = ChatTransition.STOP_ALARM_COMMAND
             else -> {
                 transition = ChatTransition.TEXT_ENTERED
@@ -52,6 +55,21 @@ class MedibotMessageHandler(val stateMachine: ChatStateMachine, val alarmReposit
             StateMachineResponse.DELETED_SUCCESSFUL -> botResponse = TextResponse(TextResponsePayload("Alarm removed successfully"))
             StateMachineResponse.DUPLICATED_ALARM_NAME -> botResponse = TextResponse(TextResponsePayload("Alarm name already exists"))
             StateMachineResponse.INVALID_INTERVAL -> botResponse = TextResponse(TextResponsePayload("Invalid interval format"))
+            StateMachineResponse.LIST_ALARMS -> {
+                val alarms = alarmRepository.getAlarmsForChatId(chatId)
+                val text: String
+                if (alarms.isEmpty()) {
+                    text = "You have no alarms set!"
+                } else {
+                    var tempText = "Your set alarms:\n"
+                    alarms.forEach { tempText += it.name +"\n" }
+                    text = tempText
+                }
+
+
+                botResponse = TextResponse(TextResponsePayload(text))
+            }
+            StateMachineResponse.HELP -> botResponse = TextResponse(TextResponsePayload("Welcome to Medibot2. Your friendly drug reminder :-). I'm here to help, just like Clippy. Follow this link to get more information: https://github.com/Ka0o0/Medibot2-Spring"))
         }
 
         return botResponse

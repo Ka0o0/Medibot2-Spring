@@ -18,7 +18,9 @@ class ChatStateMachine(
         val processAlarmCommandHandler: ProcessAlarmCommandHandler,
         val stopAlarmCommandHandler: StopAlarmCommandHandler,
         val createNewMediNameHandler: CreateNewMediNameHandler,
-        val createNewMediIntervalHandler: CreateNewMediIntervalHandler
+        val createNewMediIntervalHandler: CreateNewMediIntervalHandler,
+        val listAlarmsCommandHandler: ListAlarmsCommandHandler,
+        val helpCommandHandler: HelpCommandHandler
 ) {
 
 
@@ -31,7 +33,9 @@ class ChatStateMachine(
                                     Pair(ChatTransition.CONTINUE_ALARM_COMMAND, continueAlarmCommandHandler),
                                     Pair(ChatTransition.DELETE_ALARM_COMMAND, deleteAlarmCommandHandler),
                                     Pair(ChatTransition.CREATE_ALARM_COMMAND, createAlarmCommandHandler),
-                                    Pair(ChatTransition.PAUSE_ALARM_COMMAND, pauseAlarmCommandHandler)
+                                    Pair(ChatTransition.PAUSE_ALARM_COMMAND, pauseAlarmCommandHandler),
+                                    Pair(ChatTransition.LIST_ALARMS_COMMAND, listAlarmsCommandHandler),
+                                    Pair(ChatTransition.HELP_COMMAND, helpCommandHandler)
                             )
                     ),
                     Pair(
