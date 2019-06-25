@@ -1,13 +1,9 @@
 package at.appfractory.medibot.medibot.alarm.transitionhandler
 
-import at.appfractory.medibot.medibot.model.ChatState
-import at.appfractory.medibot.medibot.model.ChatStatePayload
 import at.appfractory.medibot.medibot.alarm.ChatStateTransitionHandler
 import at.appfractory.medibot.medibot.alarm.StateMachineResponse
-import at.appfractory.medibot.medibot.model.statepayload.AlarmCommandStatePayload
-import at.appfractory.medibot.medibot.model.statepayload.AlarmCommandStatePayload.AlarmCommand.Delete
-import at.appfractory.medibot.medibot.model.Alarm
 import at.appfractory.medibot.medibot.model.Chat
+import at.appfractory.medibot.medibot.model.ChatState
 import at.appfractory.medibot.medibot.repository.AlarmRepository
 import org.springframework.stereotype.Service
 
@@ -17,11 +13,11 @@ import org.springframework.stereotype.Service
 @Service
 class StopAlarmCommandHandler(val repository: AlarmRepository) : ChatStateTransitionHandler {
 
-    override fun processTransition(chat: Chat, transitionPayload: Any?): Triple<ChatState, ChatStatePayload?, StateMachineResponse> {
-        val alarms = repository.getAlarmsForChatId(chat.chatId)
+    override fun processTransition(chat: Chat, transitionPayload: Any?): Triple<ChatState, String?, StateMachineResponse> {
+        val alarms = repository.findByChatId(chat.chatId)
         alarms.forEach {
             it.stop()
-            repository.saveAlarm(it)
+            repository.save(it)
         }
 
         return Triple(ChatState.Normal, null, StateMachineResponse.STOPPED_SUCCESSFUL)

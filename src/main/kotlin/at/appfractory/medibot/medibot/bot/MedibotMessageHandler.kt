@@ -48,7 +48,7 @@ class MedibotMessageHandler(val stateMachine: ChatStateMachine, val alarmReposit
             StateMachineResponse.STOPPED_SUCCESSFUL -> botResponse = TextResponse(TextResponsePayload("Good girl :-)"))
             StateMachineResponse.AWAITING_ALARM_SELECTION -> {
                 val options: MutableMap<String, String> = mutableMapOf()
-                alarmRepository.getAlarmsForChatId(chatId).forEach { options[it.name] = it.name }
+                alarmRepository.findByChatId(chatId).forEach { options[it.name] = it.name }
                 botResponse = ChoiceResponse(ChoiceResponsePayload("Please select a medication.", options))
             }
             StateMachineResponse.INVALID_ALARM_NAME -> botResponse = TextResponse(TextResponsePayload("No good alarm name"))
@@ -56,9 +56,9 @@ class MedibotMessageHandler(val stateMachine: ChatStateMachine, val alarmReposit
             StateMachineResponse.DUPLICATED_ALARM_NAME -> botResponse = TextResponse(TextResponsePayload("Alarm name already exists"))
             StateMachineResponse.INVALID_INTERVAL -> botResponse = TextResponse(TextResponsePayload("Invalid interval format"))
             StateMachineResponse.LIST_ALARMS -> {
-                val alarms = alarmRepository.getAlarmsForChatId(chatId)
+                val alarms = alarmRepository.findByChatId(chatId)
                 val text: String
-                if (alarms.isEmpty()) {
+                if (alarms.count() == 0) {
                     text = "You have no alarms set!"
                 } else {
                     var tempText = "Your set alarms:\n"

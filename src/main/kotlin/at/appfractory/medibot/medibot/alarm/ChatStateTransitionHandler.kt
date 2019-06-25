@@ -9,5 +9,5 @@ import at.appfractory.medibot.medibot.model.ChatStatePayload
  */
 interface ChatStateTransitionHandler {
 
-    fun processTransition(chat: Chat, transitionPayload: Any?): Triple<ChatState, ChatStatePayload?, StateMachineResponse>
+    fun processTransition(chat: Chat, transitionPayload: Any?): Triple<ChatState, String?, StateMachineResponse>
 }

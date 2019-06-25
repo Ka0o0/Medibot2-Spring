@@ -7,6 +7,6 @@ import at.appfractory.medibot.medibot.model.Chat
  */
 interface ChatRepository {
 
-    fun getChatByIdOrCreate(chatId: String): Chat
-    fun saveChat(chat: Chat)
+    fun findByChatId(chatId: String): Chat?
+    fun save(chat: Chat)
 }
