@@ -1,16 +1,15 @@
 package at.appfractory.medibot.medibot.alarm.transitionhandler
 
-import at.appfractory.medibot.medibot.model.ChatState
-import at.appfractory.medibot.medibot.model.ChatStatePayload
 import at.appfractory.medibot.medibot.alarm.ChatStateTransitionHandler
 import at.appfractory.medibot.medibot.alarm.StateMachineResponse
 import at.appfractory.medibot.medibot.model.Alarm
 import at.appfractory.medibot.medibot.model.Chat
-import at.appfractory.medibot.medibot.model.statepayload.CreateNewAlarmStatePayload
+import at.appfractory.medibot.medibot.model.ChatState
 import at.appfractory.medibot.medibot.repository.AlarmRepository
 import org.springframework.stereotype.Service
 import java.time.DayOfWeek
 import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 
 /**
@@ -29,8 +28,8 @@ class CreateNewMediIntervalHandler(val alarmRepository: AlarmRepository) : ChatS
             Pair("sun", DayOfWeek.SUNDAY)
     )
 
-    override fun processTransition(chat: Chat, transitionPayload: Any?): Triple<ChatState, ChatStatePayload?, StateMachineResponse> {
-        val alarmName = (chat.statePayload as? CreateNewAlarmStatePayload)?.name
+    override fun processTransition(chat: Chat, transitionPayload: Any?): Triple<ChatState, String?, StateMachineResponse> {
+        val alarmName = chat.statePayload
                 ?: return Triple(ChatState.Normal, null, StateMachineResponse.INVALID_COMMAND)
         val invalidTimeResponse = Triple(ChatState.Normal, null, StateMachineResponse.INVALID_INTERVAL)
         val intervalString = transitionPayload as? String ?: return invalidTimeResponse
@@ -43,33 +42,33 @@ class CreateNewMediIntervalHandler(val alarmRepository: AlarmRepository) : ChatS
         } catch (e: DateTimeParseException) {
             return invalidTimeResponse
         }
-        val interval: MutableMap<DayOfWeek, LocalTime> = mutableMapOf()
+        val interval: MutableMap<Int, String> = mutableMapOf()
 
         when (timeAndDaySplit.size) {
             1 -> {
                 for (i in 1..7) {
-                    interval[DayOfWeek.of(i)] = localTime
+                    interval[i] = localTime.format(DateTimeFormatter.ISO_LOCAL_TIME)
                 }
             }
             2 -> {
                 val daysOfWeekSplit = timeAndDaySplit[1].split(",")
                 if (daysOfWeekSplit.size == 1 && daysOfWeekSplit[0].toLowerCase() == "daily") {
                     for (i in 1..7) {
-                        interval[DayOfWeek.of(i)] = localTime
+                        interval[i] = localTime.format(DateTimeFormatter.ISO_LOCAL_TIME)
                     }
                 } else {
                     daysOfWeekSplit.forEach {
                         val dayOfWeek = dayOfWeekMapping[it.toLowerCase()] ?: return invalidTimeResponse
-                        interval[dayOfWeek] = localTime
+                        interval[dayOfWeek.value] = localTime.format(DateTimeFormatter.ISO_LOCAL_TIME)
                     }
                 }
             }
             else -> return invalidTimeResponse
         }
 
-        val alarm = Alarm(chat.chatId, alarmName, interval, null, false)
+        val alarm = Alarm(null, chat.chatId, alarmName, interval, null, false)
         alarm.continueAlarm()
-        alarmRepository.saveAlarm(alarm)
+        alarmRepository.save(alarm)
         return Triple(ChatState.Normal, null, StateMachineResponse.CREATION_SUCCESSFUL)
     }
 

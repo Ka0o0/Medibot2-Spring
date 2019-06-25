@@ -1,5 +1,7 @@
 package at.appfractory.medibot.medibot.model
 
-interface ChatStatePayload {
+import java.io.Serializable
+
+interface ChatStatePayload: Serializable {
 
 }

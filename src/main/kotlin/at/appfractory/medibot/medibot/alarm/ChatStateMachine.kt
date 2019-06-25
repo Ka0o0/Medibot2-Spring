@@ -1,6 +1,7 @@
 package at.appfractory.medibot.medibot.alarm
 
 import at.appfractory.medibot.medibot.alarm.transitionhandler.*
+import at.appfractory.medibot.medibot.model.Chat
 import at.appfractory.medibot.medibot.repository.ChatRepository
 import at.appfractory.medibot.medibot.model.ChatState
 import org.springframework.stereotype.Service
@@ -66,14 +67,20 @@ class ChatStateMachine(
 
 
     fun processTransition(chatId: String, transition: ChatTransition, transitionPayload: Any?): StateMachineResponse {
-        val chat = chatRepository.getChatByIdOrCreate(chatId)
+        val chat: Chat
+        val databaseChat = chatRepository.findByChatId(chatId)
+        if (databaseChat != null) {
+            chat = databaseChat
+        } else {
+            chat = Chat(chatId, ChatState.Normal, null)
+        }
         val possibleTransitions = stateMachine[chat.state] ?: return StateMachineResponse.INVALID_COMMAND
         val chatStateTransitionHandler = possibleTransitions[transition] ?: return StateMachineResponse.INVALID_COMMAND
 
         val (newState, newPayload, response) = chatStateTransitionHandler.processTransition(chat, transitionPayload)
         chat.state = newState
         chat.statePayload = newPayload
-        chatRepository.saveChat(chat)
+        chatRepository.save(chat)
         return response
     }
 }

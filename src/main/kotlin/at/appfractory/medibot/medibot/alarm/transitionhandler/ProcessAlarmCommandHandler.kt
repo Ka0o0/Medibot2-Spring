@@ -1,13 +1,9 @@
 package at.appfractory.medibot.medibot.alarm.transitionhandler
 
-import at.appfractory.medibot.medibot.model.ChatState
-import at.appfractory.medibot.medibot.model.ChatStatePayload
 import at.appfractory.medibot.medibot.alarm.ChatStateTransitionHandler
 import at.appfractory.medibot.medibot.alarm.StateMachineResponse
-import at.appfractory.medibot.medibot.model.statepayload.AlarmCommandStatePayload
-import at.appfractory.medibot.medibot.model.Alarm
 import at.appfractory.medibot.medibot.model.Chat
-import at.appfractory.medibot.medibot.model.statepayload.AlarmCommandStatePayload.AlarmCommand.*
+import at.appfractory.medibot.medibot.model.ChatState
 import at.appfractory.medibot.medibot.repository.AlarmRepository
 import org.springframework.stereotype.Service
 
@@ -17,29 +13,30 @@ import org.springframework.stereotype.Service
 @Service
 class ProcessAlarmCommandHandler(val repository: AlarmRepository) : ChatStateTransitionHandler {
 
-    override fun processTransition(chat: Chat, transitionPayload: Any?): Triple<ChatState, ChatStatePayload?, StateMachineResponse> {
-        val alarmCommandPayload = chat.statePayload as? AlarmCommandStatePayload
+    override fun processTransition(chat: Chat, transitionPayload: Any?): Triple<ChatState, String?, StateMachineResponse> {
+        val alarmCommandPayload = chat.statePayload
                 ?: return Triple(ChatState.Normal, null, StateMachineResponse.INVALID_COMMAND)
         val alarmName = transitionPayload as? String
                 ?: return Triple(ChatState.Normal, null, StateMachineResponse.INVALID_COMMAND)
-        val alarm = repository.getAlarm(chat.chatId, alarmName)
+        val alarm = repository.findByChatIdAndName(chat.chatId, alarmName).firstOrNull()
                 ?: return Triple(ChatState.Normal, null, StateMachineResponse.INVALID_ALARM_NAME)
 
-        when (alarmCommandPayload.command) {
-            Delete -> {
-                repository.removeAlarmForChatId(alarm)
+        when (alarmCommandPayload.toLowerCase()) {
+            "delete" -> {
+                repository.delete(alarm)
                 return Triple(ChatState.Normal, null, StateMachineResponse.DELETED_SUCCESSFUL)
             }
-            Continue -> {
+            "continue" -> {
                 alarm.continueAlarm()
-                repository.saveAlarm(alarm)
+                repository.save(alarm)
                 return Triple(ChatState.Normal, null, StateMachineResponse.CONTINUED_SUCCESSFUL)
             }
-            Pause -> {
+            "pause" -> {
                 alarm.pauseAlarm()
-                repository.saveAlarm(alarm)
+                repository.save(alarm)
                 return Triple(ChatState.Normal, null, StateMachineResponse.PAUSED_SUCCESSFUL)
             }
+            else -> return Triple(ChatState.Normal, null, StateMachineResponse.INVALID_COMMAND)
         }
     }
 }

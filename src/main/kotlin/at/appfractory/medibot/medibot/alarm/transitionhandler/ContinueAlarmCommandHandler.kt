@@ -1,11 +1,9 @@
 package at.appfractory.medibot.medibot.alarm.transitionhandler
 
-import at.appfractory.medibot.medibot.model.ChatState
-import at.appfractory.medibot.medibot.model.ChatStatePayload
 import at.appfractory.medibot.medibot.alarm.ChatStateTransitionHandler
 import at.appfractory.medibot.medibot.alarm.StateMachineResponse
 import at.appfractory.medibot.medibot.model.Chat
-import at.appfractory.medibot.medibot.model.statepayload.AlarmCommandStatePayload
+import at.appfractory.medibot.medibot.model.ChatState
 import org.springframework.stereotype.Service
 
 /**
@@ -13,7 +11,7 @@ import org.springframework.stereotype.Service
  */
 @Service
 class ContinueAlarmCommandHandler : ChatStateTransitionHandler {
-    override fun processTransition(chat: Chat, transitionPayload: Any?): Triple<ChatState, ChatStatePayload?, StateMachineResponse> {
-        return Triple(ChatState.AwaitingNameForOperation, AlarmCommandStatePayload(AlarmCommandStatePayload.AlarmCommand.Continue), StateMachineResponse.AWAITING_ALARM_SELECTION)
+    override fun processTransition(chat: Chat, transitionPayload: Any?): Triple<ChatState, String?, StateMachineResponse> {
+        return Triple(ChatState.AwaitingNameForOperation, "continue", StateMachineResponse.AWAITING_ALARM_SELECTION)
     }
 }

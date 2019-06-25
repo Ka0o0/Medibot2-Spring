@@ -1,13 +1,26 @@
 package at.appfractory.medibot.medibot.model
 
-import java.time.DayOfWeek
 import java.time.LocalDateTime
 import java.time.LocalTime
+import javax.persistence.*
 
 /**
  * Created by Kai Takac on 2019-06-22.
  */
-data class Alarm(val chatId: String, val name: String, var interval: Map<DayOfWeek, LocalTime>, var nextFiring: LocalDateTime?, var paused: Boolean) {
+@Entity
+data class Alarm(
+        @Id
+        @GeneratedValue(strategy = GenerationType.AUTO)
+        var id: Long?,
+        var chatId: String,
+        var name: String,
+        @ElementCollection
+        var interval: Map<Int, String>,
+        var nextFiring: LocalDateTime?,
+        var paused: Boolean
+) {
+
+    constructor() : this(null, "", "", emptyMap(), null, false)
 
     fun shouldRing(): Boolean {
         val nextFiring = nextFiring ?: return false
@@ -27,8 +40,8 @@ data class Alarm(val chatId: String, val name: String, var interval: Map<DayOfWe
         val now = LocalDateTime.now()
         for (i in 0..6) {
             val targetDate = now.plusDays(i.toLong())
-            val time = interval[targetDate.dayOfWeek] ?: continue
-            val newFiring = LocalDateTime.of(targetDate.toLocalDate(), time)
+            val time = interval[targetDate.dayOfWeek.value] ?: continue
+            val newFiring = LocalDateTime.of(targetDate.toLocalDate(), LocalTime.parse(time))
 
             if (newFiring <= now) continue
 

@@ -6,6 +6,8 @@ import at.appfractory.medibot.medibot.repository.AlarmRepository
 import at.appfractory.medibot.medibot.repository.ChatRepository
 import org.springframework.stereotype.Service
 
+val THREAD_SLEEP_DURATION = 10000
+
 /**
  * Created by Kai Takac on 2019-06-22.
  */
@@ -34,19 +36,19 @@ class AlarmService(val alarmRepository: AlarmRepository, val chatRepository: Cha
 
     override fun run() {
         while (isRunnning) {
-            val allAlarms = alarmRepository.getAllAlarms()
+            val allAlarms = alarmRepository.findAll()
             allAlarms.forEach {
                 if (it.shouldRing()) {
-                    val chat = chatRepository.getChatByIdOrCreate(it.chatId)
+                    val chat = chatRepository.findByChatId(it.chatId) ?: return
                     chat.state = ChatState.Ringing
-                    chatRepository.saveChat(chat)
+                    chatRepository.save(chat)
 
                     it.snooze()
 
                     notifyObserversAboutAlarm(it)
                 }
             }
-            Thread.sleep(1000)
+            Thread.sleep(THREAD_SLEEP_DURATION.toLong())
         }
     }
 

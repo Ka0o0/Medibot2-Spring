@@ -7,9 +7,9 @@ import at.appfractory.medibot.medibot.model.Alarm
  */
 interface AlarmRepository {
 
-    fun getAllAlarms(): Array<Alarm>
-    fun getAlarmsForChatId(chatId: String): Array<Alarm>
-    fun getAlarm(chatId: String, name: String): Alarm?
-    fun removeAlarmForChatId(alarm: Alarm)
-    fun saveAlarm(alarm: Alarm)
+    fun findAll(): Iterable<Alarm>
+    fun findByChatId(chatId: String): Iterable<Alarm>
+    fun findByChatIdAndName(chatId: String, name: String): Iterable<Alarm>
+    fun delete(alarm: Alarm)
+    fun save(alarm: Alarm)
 }
