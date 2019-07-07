@@ -44,6 +44,7 @@ class AlarmService(val alarmRepository: AlarmRepository, val chatRepository: Cha
                     chatRepository.save(chat)
 
                     it.snooze()
+                    alarmRepository.save(it)
 
                     notifyObserversAboutAlarm(it)
                 }

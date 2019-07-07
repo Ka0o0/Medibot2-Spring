@@ -14,7 +14,7 @@ data class Alarm(
         var id: Long?,
         var chatId: String,
         var name: String,
-        @ElementCollection
+        @ElementCollection(fetch=FetchType.EAGER)
         var interval: Map<Int, String>,
         var nextFiring: LocalDateTime?,
         var paused: Boolean
@@ -24,7 +24,7 @@ data class Alarm(
 
     fun shouldRing(): Boolean {
         val nextFiring = nextFiring ?: return false
-        return !paused && nextFiring < LocalDateTime.now()
+        return !paused && nextFiring <= LocalDateTime.now()
     }
 
     fun snooze() {
