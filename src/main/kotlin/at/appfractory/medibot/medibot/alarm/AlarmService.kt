@@ -35,6 +35,12 @@ class AlarmService(val alarmRepository: AlarmRepository, val chatRepository: Cha
     }
 
     override fun run() {
+        val allAlarms = alarmRepository.findAll()
+        allAlarms.forEach {
+            it.stop()
+            alarmRepository.save(it)
+        }
+
         while (isRunnning) {
             val allAlarms = alarmRepository.findAll()
             allAlarms.forEach {

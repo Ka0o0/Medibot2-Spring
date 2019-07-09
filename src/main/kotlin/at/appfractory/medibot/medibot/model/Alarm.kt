@@ -2,6 +2,8 @@ package at.appfractory.medibot.medibot.model
 
 import java.time.LocalDateTime
 import java.time.LocalTime
+import java.time.ZoneId
+import java.time.ZonedDateTime
 import javax.persistence.*
 
 /**
@@ -16,7 +18,7 @@ data class Alarm(
         var name: String,
         @ElementCollection(fetch=FetchType.EAGER)
         var interval: Map<Int, String>,
-        var nextFiring: LocalDateTime?,
+        var nextFiring: ZonedDateTime?,
         var paused: Boolean
 ) {
 
@@ -24,11 +26,11 @@ data class Alarm(
 
     fun shouldRing(): Boolean {
         val nextFiring = nextFiring ?: return false
-        return !paused && nextFiring <= LocalDateTime.now()
+        return !paused && nextFiring <= ZonedDateTime.now()
     }
 
     fun snooze() {
-        nextFiring = LocalDateTime.now().plusMinutes(10)
+        nextFiring = ZonedDateTime.now().plusMinutes(10)
     }
 
     fun stop() {
@@ -37,11 +39,13 @@ data class Alarm(
 
     private fun recalculateNextFiring() {
         nextFiring = null
-        val now = LocalDateTime.now()
+        val now = ZonedDateTime.now()
         for (i in 0..6) {
             val targetDate = now.plusDays(i.toLong())
             val time = interval[targetDate.dayOfWeek.value] ?: continue
-            val newFiring = LocalDateTime.of(targetDate.toLocalDate(), LocalTime.parse(time))
+            val timep = LocalTime.parse(time);
+
+            val newFiring = ZonedDateTime.of(targetDate.year, targetDate.monthValue, targetDate.dayOfMonth, timep.hour, timep.minute, 0, 0, ZoneId.of("Europe/Vienna"))
 
             if (newFiring <= now) continue
 
